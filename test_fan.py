@@ -10,7 +10,7 @@ from fan import Fan
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Standalone MOSFET fan test.")
-    parser.add_argument("--pin", type=int, default=12, help="BCM GPIO connected to the fan MOSFET gate.")
+    parser.add_argument("--pin", type=int, default=17, help="BCM GPIO connected to the fan MOSFET gate.")
     parser.add_argument("--window", type=float, default=10.0, help="Time-proportioning window in seconds.")
     parser.add_argument("--step-seconds", type=float, default=5.0, help="Seconds to hold each fan speed.")
     return parser.parse_args()

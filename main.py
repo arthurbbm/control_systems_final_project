@@ -38,12 +38,15 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--humidity-threshold", type=float, default=60.0)
     parser.add_argument("--sample-time", type=float, default=1.0)
     parser.add_argument("--heater-pin", type=int, default=18)
-    parser.add_argument("--fan-pin", type=int, default=12)
+    parser.add_argument("--fan-pin", type=int, default=17)
     parser.add_argument("--heater-window", type=float, default=10.0)
     parser.add_argument("--fan-window", type=float, default=10.0)
     parser.add_argument("--humidity-hysteresis", type=float, default=4.0)
     parser.add_argument("--cooling-on-above", type=float, default=0.5)
     parser.add_argument("--cooling-off-above", type=float, default=0.0)
+    parser.add_argument("--log-csv", type=str, default=None)
+    parser.add_argument("--plot", action="store_true")
+    parser.add_argument("--plot-history-points", type=int, default=300)
     return parser.parse_args()
 
 
@@ -74,6 +77,9 @@ def main() -> None:
             humidity_pct=args.humidity_threshold,
         ),
         sample_time=args.sample_time,
+        log_csv_path=args.log_csv,
+        plot_realtime=args.plot,
+        plot_history_points=args.plot_history_points,
     )
     loop.run_forever()
 
