@@ -42,6 +42,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--heater-window", type=float, default=10.0)
     parser.add_argument("--fan-window", type=float, default=10.0)
     parser.add_argument("--humidity-hysteresis", type=float, default=4.0)
+    parser.add_argument("--cooling-on-above", type=float, default=0.5)
+    parser.add_argument("--cooling-off-above", type=float, default=0.0)
     return parser.parse_args()
 
 
@@ -58,6 +60,8 @@ def main() -> None:
             threshold=args.humidity_threshold,
             hysteresis=args.humidity_hysteresis,
         ),
+        cooling_on_above_setpoint_c=args.cooling_on_above,
+        cooling_off_above_setpoint_c=args.cooling_off_above,
     )
 
     loop = ControlLoop(

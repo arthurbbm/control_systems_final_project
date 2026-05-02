@@ -23,9 +23,32 @@ class ClimateController:
         self,
         temperature_controller: TemperatureController,
         humidity_controller: HumidityController,
+        cooling_on_above_setpoint_c: float = 0.5,
+        cooling_off_above_setpoint_c: float = 0.0,
     ) -> None:
+        if cooling_off_above_setpoint_c > cooling_on_above_setpoint_c:
+            raise ValueError("cooling_off_above_setpoint_c must be less than or equal to cooling_on_above_setpoint_c.")
+
         self.temperature_controller = temperature_controller
         self.humidity_controller = humidity_controller
+        self.cooling_on_above_setpoint_c = cooling_on_above_setpoint_c
+        self.cooling_off_above_setpoint_c = cooling_off_above_setpoint_c
+        self._temperature_cooling_active = False
+
+    def _update_temperature_cooling_state(
+        self,
+        temperature_c: float,
+        setpoint_c: float,
+    ) -> bool:
+        upper = setpoint_c + self.cooling_on_above_setpoint_c
+        lower = setpoint_c + self.cooling_off_above_setpoint_c
+
+        if temperature_c >= upper:
+            self._temperature_cooling_active = True
+        elif temperature_c <= lower:
+            self._temperature_cooling_active = False
+
+        return self._temperature_cooling_active
 
     def compute_outputs(
         self,
@@ -43,9 +66,16 @@ class ClimateController:
             measurement=reading.humidity_pct,
             dt=dt,
         )
+        temperature_cooling_active = self._update_temperature_cooling_state(
+            temperature_c=reading.temperature_c,
+            setpoint_c=setpoints.temperature_c,
+        )
 
         heater_level = max(0.0, temp_effort)
-        fan_level = max(0.0, -temp_effort)
+        if temperature_cooling_active:
+            heater_level = 0.0
+
+        fan_level = 1.0 if temperature_cooling_active else 0.0
         if ventilation_active:
             fan_level = max(fan_level, 1.0)
 
@@ -58,6 +88,7 @@ class ClimateController:
     def reset(self) -> None:
         self.temperature_controller.reset()
         self.humidity_controller.reset()
+        self._temperature_cooling_active = False
 
 
 class ControlLoop:
